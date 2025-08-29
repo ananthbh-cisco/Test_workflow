@@ -33,3 +33,8 @@ We want to:
 - Guests/Unknown roles are always denied.
 - Access is restricted outside **08:00–20:00** local time.
 - System errors, malformed requests, or timeouts → **Deny**.
+
+## Important
+Pdocut is built on - https://docs.plainid.io/apidocs/permit-deny
+
+
