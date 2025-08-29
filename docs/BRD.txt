@@ -1,0 +1,60 @@
+# Business Requirement Document (BRD) – PlainID Access Control
+
+## 1. Project Overview
+The Case Management System (CMS) integrates with **PlainID Policy Decision Point (PDP)** to enforce access control.  
+For every resource access request, CMS queries PlainID PDP.  
+PlainID PDP must return a decision: **Permit** or **Deny** based on defined rules.
+
+---
+
+## 2. Business Requirements
+
+### 2.1 Functional Rules for Access Decisions
+
+#### Rule 1 – Role-Based Access
+- **Permit** if the user role is `Admin` → Access to all cases.  
+- **Permit** if the user role is `Manager` → Access to cases within their assigned department/region.  
+- **Deny** if user role is `Agent` and case is marked as *sensitive*.  
+- **Deny** if user role is not recognized (`Guest`, `Unknown`, etc.).  
+
+#### Rule 2 – Region-Based Access
+- **Permit** if user region matches the case region (e.g., EU user accessing EU case).  
+- **Deny** if user region does not match case region (e.g., US user accessing EU case).  
+
+#### Rule 3 – Data Sensitivity
+- **Permit** if case is **non-sensitive** and user has valid role (Admin/Manager/Agent with correct region).  
+- **Deny** if case is **sensitive** and user is not Admin.  
+
+#### Rule 4 – Time-Based Restriction
+- **Permit** if access request is within allowed working hours (08:00–20:00 local time).  
+- **Deny** if access request is outside allowed hours.  
+
+#### Rule 5 – System Availability
+- **Deny** if PlainID PDP cannot evaluate due to system error or malformed request.  
+- **Deny** if response time exceeds 200ms and retry also fails.  
+
+---
+
+## 3. Non-Functional Requirements
+1. PDP must return a decision (`Permit`/`Deny`) for every request.  
+2. All decisions must be logged for audit.  
+3. Latency per decision should be ≤200ms.  
+
+---
+
+## 4. Decision Matrix (Summary)
+
+| Condition                                                                 | Decision |
+|---------------------------------------------------------------------------|----------|
+| User role = Admin                                                         | Permit   |
+| User role = Manager, case region = user region                            | Permit   |
+| User role = Manager, case region ≠ user region                            | Deny     |
+| User role = Agent, case is sensitive                                      | Deny     |
+| User role = Agent, case is non-sensitive, region matches                  | Permit   |
+| User role = Unknown/Guest                                                 | Deny     |
+| Case sensitivity = sensitive, user ≠ Admin                                | Deny     |
+| Request time within 08:00–20:00                                           | Permit   |
+| Request time outside 08:00–20:00                                          | Deny     |
+| PDP system error, malformed request, or response time >200ms (after retry) | Deny     |
+
+---
