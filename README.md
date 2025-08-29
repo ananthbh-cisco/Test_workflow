@@ -33,8 +33,3 @@ We want to:
 - Guests/Unknown roles are always denied.
 - Access is restricted outside **08:00–20:00** local time.
 - System errors, malformed requests, or timeouts → **Deny**.
-
-For detailed rules, see:
-- [BRD.md](./docs/BRD.md)
-- [DECISION_MATRIX.md](./docs/DECISION_MATRIX.md)
-- [TEST_CASES.md](./tests/TEST_CASES.md)
